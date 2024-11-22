@@ -2,14 +2,29 @@ import db from "@/app/lib/db";
 
 export async function GET(req, { params }) {
   try {
-    const [id] = params.id;
+    const { id } = params; // ดึง `id` จาก params (จาก URL)
+  
+    // ทำการ query ฐานข้อมูล
     const [trainers] = await db.query(
-      "SELECT * FROM trainer  WHERE trainer_id = ?",
-      id
+      "SELECT * FROM Trainer WHERE trainer_id = ?", [id]
     );
-    return new Response(JSON.stringify(trainers)).status(200);
+
+    // ตรวจสอบว่าพบข้อมูลหรือไม่
+    if (!trainers || trainers.length === 0) {
+      return new Response(
+        JSON.stringify({ message: "ไม่พบข้อมูลสำหรับ trainer id นี้" }),
+        { status: 404 }
+      );
+    }
+
+    // ส่งข้อมูลที่พบกลับ
+    return new Response(JSON.stringify(trainers[0]), { status: 200 });  // trainers[0] เพราะ query จะได้ array ของผลลัพธ์
   } catch (error) {
-    return new Response(JSON.stringify(error)).status(500);
+    console.error("Error fetching trainer data:", error);
+    return new Response(
+      JSON.stringify({ error: "Internal Server Error", details: error.message }),
+      { status: 500 }
+    );
   }
 }
 
@@ -19,7 +34,7 @@ export async function DELETE(req, { params }) {
 
     // Perform the DELETE query
     const [trainers] = await db.query(
-      "DELETE FROM trainer WHERE trainer_id = ?",
+      "DELETE FROM Trainer WHERE trainer_id = ?",
       [id] // Pass id inside an array for parameterized queries
     );
 
@@ -50,22 +65,39 @@ export async function PUT(request, { params }) {
     const trainer_id = Number(params.id); // Get trainer_id from the URL
 
     // Get the request body data
-    const { trainer_name, trainer_email, trainer_phone, trainer_exp } =
-      await request.json();
+    const { 
+      trainer_name, 
+      trainer_surname, 
+      trainer_email, 
+      trainer_password, 
+      trainer_phone, 
+      trainer_birthdate, 
+      trainer_gender, 
+      trainer_exp, 
+      trainer_status, 
+      trainer_startdate, 
+      trainer_endtdate 
+    } = await request.json();
 
     // Log the incoming data (for debugging purposes)
     console.log({
       trainer_name,
+      trainer_surname,
       trainer_email,
+      trainer_password,
       trainer_phone,
+      trainer_birthdate,
+      trainer_gender,
       trainer_exp,
-      trainer_id,
+      trainer_status,
+      trainer_startdate,
+      trainer_endtdate,
     });
 
     // Check if the trainer exists in the database
     const [trainers_by_id] = await db.query(
-      "SELECT * FROM trainer WHERE trainer_id = ?",
-      trainer_id
+      "SELECT * FROM Trainer WHERE trainer_id = ?",
+      [trainer_id]
     );
 
     // If no trainer was found, return a 404 error
@@ -78,8 +110,21 @@ export async function PUT(request, { params }) {
 
     // Update the trainer details in the database
     const [new_trainers] = await db.query(
-      "UPDATE trainer SET trainer_name = ?, trainer_email = ?, trainer_phone = ?, trainer_exp = ? WHERE trainer_id = ?",
-      [trainer_name, trainer_email, trainer_phone, trainer_exp, trainer_id]
+      "UPDATE Trainer SET trainer_name = ?, trainer_surname = ?, trainer_email = ?, trainer_password = ?, trainer_phone = ?, trainer_birthdate = ?, trainer_gender = ?, trainer_exp = ?, trainer_status = ?, trainer_startdate = ?, trainer_endtdate = ? WHERE trainer_id = ?",
+      [
+        trainer_name, 
+        trainer_surname, 
+        trainer_email, 
+        trainer_password, 
+        trainer_phone, 
+        trainer_birthdate, 
+        trainer_gender, 
+        trainer_exp, 
+        trainer_status, 
+        trainer_startdate, 
+        trainer_endtdate, 
+        trainer_id // ใส่ trainer_id เพื่อระบุว่าเราจะอัปเดตข้อมูลของ trainer นี้
+      ]
     );
 
     // Check if the update was successful (affectedRows > 0)

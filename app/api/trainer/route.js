@@ -2,7 +2,7 @@ import db from "@/app/lib/db";
 
 export async function GET() {
   try {
-    const [trainers] = await db.query("SELECT * FROM trainer");
+    const [trainers] = await db.query("SELECT * FROM Trainer");
     if (!trainers) {
       return new Response(JSON.stringify({ message: "ไม่พบข้อมูล" }));
     }
@@ -16,15 +16,22 @@ export async function POST(request) {
     try {
       const {
         trainer_name,
+        trainer_surname,
         trainer_email,
+        trainer_password,
         trainer_phone,
+        trainer_birthdate,
+        trainer_gender,
         trainer_exp,
+        trainer_status,
+        trainer_startdate,
+        trainer_endtdate,
       } = await request.json();
   
       // Insert query
       const [new_trainers] = await db.query(
-        "INSERT INTO trainer (trainer_name, trainer_email, trainer_phone, trainer_exp) VALUES (?, ?, ?, ?)",
-        [trainer_name, trainer_email, trainer_phone, trainer_exp]
+        "INSERT INTO Trainer (trainer_name, trainer_surname, trainer_email, trainer_password, trainer_phone, trainer_birthdate, trainer_gender, trainer_exp, trainer_status, trainer_startdate, trainer_endtdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [trainer_name, trainer_surname, trainer_email, trainer_password, trainer_phone, trainer_birthdate, trainer_gender, trainer_exp, trainer_status, trainer_startdate, trainer_endtdate]
       );
   
       // Check if the insert was successful

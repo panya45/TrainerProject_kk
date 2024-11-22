@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  admin_id        Int      @id @default(autoincrement())
+  admin_name      String
+  admin_email     String   @unique
+  admin_password  String 
+  createdAt       DateTime @default(now())
+
+  @@map("Admin") // ชื่อของ table ในฐานข้อมูล
+}
+
+model Trainer {
+  trainer_id        Int      @id @default(autoincrement())
+  trainer_name      String
+  trainer_surname   String
+  trainer_email     String   @unique
+  trainer_password  String
+  trainer_phone     String
+  trainer_birthdate DateTime
+  trainer_gender    String
+  trainer_exp       Int
+  trainer_status    Int
+  trainer_startDate DateTime
+  trainer_endtDate  DateTime
+
+  @@map("Trainer")
+}
